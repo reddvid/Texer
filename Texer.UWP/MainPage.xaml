@@ -2,58 +2,118 @@
     x:Class="Texer.UWP.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpers="using:Texer.UWP.Helpers"
     xmlns:local="using:Texer.UWP"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Background="{ThemeResource SystemControlAcrylicWindowBrush}"
-    Loaded="Page_Loaded"
+    xmlns:models="using:Texer.UWP.Models"
     mc:Ignorable="d">
+    <Page.Background>
+        <ImageBrush ImageSource="{x:Bind ViewModel.BingImage, Mode=OneWay}" />
+    </Page.Background>
+    <Page.Resources>
+        <converters:BoolNegationConverter x:Key="BoolNegation" />
+        <converters:BoolToVisibilityConverter
+            x:Key="BoolToVisibility"
+            FalseValue="Visible"
+            TrueValue="Collapsed" />
+    </Page.Resources>
 
-    <Grid>
+    <Grid Background="{ThemeResource SystemControlAcrylicElementBrush}">
+        <Grid.Resources>
+            <ThemeShadow x:Name="BackgroundGridShadow" />
+        </Grid.Resources>
         <Grid.ChildrenTransitions>
             <TransitionCollection>
-                <RepositionThemeTransition />
+                <ReorderThemeTransition />
             </TransitionCollection>
         </Grid.ChildrenTransitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="ColumnLeft" Width="2*" />
-            <ColumnDefinition Width="6*" />
+            <ColumnDefinition Width="8*" />
             <ColumnDefinition x:Name="ColumnRight" Width="2*" />
         </Grid.ColumnDefinitions>
-        <Grid Grid.Column="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid x:Name="PanelShadowCatcher" Grid.ColumnSpan="3" />
+        <Grid
+            Grid.Column="1"
+            MaxWidth="1200"
+            Margin="0,24"
+            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+            Shadow="{StaticResource BackgroundGridShadow}"
+            Translation="0,2,12">
+            <Grid.ChildrenTransitions>
+                <TransitionCollection>
+                    <ReorderThemeTransition />
+                    <EntranceThemeTransition />
+                </TransitionCollection>
+            </Grid.ChildrenTransitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBox
-                x:Name="InputBox"
-                Height="140"
-                Margin="64,24"
-                AcceptsReturn="True"
-                TextChanged="InputBox_TextChanged" />
-            <StackPanel Grid.Row="1" Visibility="Collapsed">
-                <TextBox x:Name="TbResults" />
-                <TextBox x:Name="TbResults2" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+            <Grid
+                x:Name="ItemsShadowCatcher"
+                Grid.RowSpan="2"
+                Grid.ColumnSpan="2" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox
+                    Height="140"
+                    Margin="10"
+                    AcceptsReturn="True"
+                    Text="{x:Bind ViewModel.InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            </Grid>
+
+            <StackPanel
+                Grid.Row="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Visibility="{x:Bind ViewModel.IsInputBoxEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock
+                    FontFamily="Segoe MDL2 Assets"
+                    FontSize="120"
+                    Text="&#xE933;" />
+                <TextBlock
+                    Margin="-50,0"
+                    VerticalAlignment="Center"
+                    Text="Type something to see styles" />
             </StackPanel>
 
-            <ListView x:Name="ResultsGrid" Grid.Row="1">
+            <ListView
+                Grid.Row="1"
+                Margin="10"
+                ItemsSource="{x:Bind ViewModel.StyledTextList, Mode=OneWay}"
+                SelectionMode="Single"
+                Visibility="{x:Bind ViewModel.IsInputBoxEmpty, Mode=OneWay}">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="helpers:StyleItem">
+                    <DataTemplate x:DataType="models:StyleItem">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock FontSize="12" Text="{x:Bind StyleType}" />
-                                <TextBlock Text="{x:Bind TextResult}" TextWrapping="WrapWholeWords" />
-                            </StackPanel>
+                            <TextBlock TextWrapping="WrapWholeWords">
+                                <Run FontSize="12" Text="{x:Bind StyleType}" />
+                                <LineBreak />
+                                <Run Text="{x:Bind TextResult}" />
+                            </TextBlock>
                             <Button
                                 Grid.Column="1"
+                                MinWidth="100"
                                 Margin="12,0,0,0"
+                                BorderThickness="0"
                                 Click="BtnCopy_Click"
-                                Content="Copy" />
+                                Content="Copy"
+                                Style="{ThemeResource ButtonRevealStyle}" />
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -61,35 +121,49 @@
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalAlignment" Value="Stretch" />
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="Padding" Value="12,4" />
+                        <Setter Property="Padding" Value="24,8" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+
+            <ListView
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Margin="10"
+                Header="History"
+                ItemsSource="{x:Bind ViewModel.SavedList, Mode=OneWay}">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:StyleItem">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Text="{x:Bind TextResult}"
+                                TextWrapping="WrapWholeWords" />
+                            <Button
+                                Grid.Column="1"
+                                MinWidth="90"
+                                Margin="12,0,0,0"
+                                BorderThickness="0"
+                                Click="BtnCopyHistory_Click"
+                                Content="Copy"
+                                Style="{ThemeResource ButtonRevealStyle}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="12,8" />
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
         </Grid>
 
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState x:Name="WideState">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="760" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ColumnLeft.Width" Value="2*" />
-                        <Setter Target="ColumnRight.Width" Value="2*" />
-                        <Setter Target="InputBox.Margin" Value="64,24" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="NarrowState">
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ColumnLeft.Width" Value="0" />
-                        <Setter Target="ColumnRight.Width" Value="0" />
-                        <Setter Target="InputBox.Margin" Value="24" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
+
     </Grid>
 </Page>

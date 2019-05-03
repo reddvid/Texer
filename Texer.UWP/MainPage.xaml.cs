@@ -7,7 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using Texer.UWP.Helpers;
+using Texer.UWP.Models;
+using Texer.UWP.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -28,120 +29,32 @@ namespace Texer.UWP
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        char[] alpha = null;
-        string[] alphaShit = null;
-
-        string[,] charArray = null;
-
-        ObservableCollection<StyleItem> results = null;
-
+        MainViewModel ViewModel { get; } = new MainViewModel();
+        
         public MainPage()
         {
             this.InitializeComponent();
 
-            alpha = new Styles().alpha;
-            alphaShit = new Styles().alphaShit;
-            charArray = new Styles().charArray;
-
-            results = new ObservableCollection<StyleItem>();
+            this.Loaded += MainPage_Loaded;
         }
 
-        private void InputBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            results.Clear();
-
-            string bold = "";
-            string italic = "";
-            string em = "";
-            string score = "";
-            string script = "";
-            string super = "";
-            string small = "";
-            string dark = "";
-            string circle = "";
-            string thin = "";
-            string utf = "";
-
-            foreach (char c in InputBox.Text)
-            {
-                int alphaIndex = Array.IndexOf(alpha, c);
-
-                Debug.WriteLine(alphaIndex);
-                Debug.WriteLine(c);
-
-                if (alphaIndex != -1)
-                {
-                    bold += charArray[alphaIndex, 0];
-                    italic += charArray[alphaIndex, 1];
-                    em += charArray[alphaIndex, 2];
-                    score += charArray[alphaIndex, 3];
-                    script += charArray[alphaIndex, 4];
-                    super += charArray[alphaIndex, 5];
-                    small += charArray[alphaIndex, 6];
-                    dark += charArray[alphaIndex, 7];
-                    circle += charArray[alphaIndex, 8];
-                    thin += charArray[alphaIndex, 9];
-                    //utf += Convert(c.ToString());
-                }
-                else if (Array.IndexOf(alphaShit, c) > -1)
-                {
-                    int shitIndex = Array.IndexOf(alphaShit, c);
-                    utf += alpha[shitIndex];
-                }
-                else
-                {
-                    bold += c;
-                    italic += c;
-                    em += c;
-                    score += c;
-                    script += c;
-                    super += c;
-                    small += c;
-                    dark += c;
-                    circle += c;
-                    thin += c;
-                    //utf += Convert(c.ToString());
-                }
-            }
-
-            results.Add(new StyleItem("Bold", bold));
-            results.Add(new StyleItem("Italic", italic));
-            results.Add(new StyleItem("Emphasized", em));
-            results.Add(new StyleItem("Dark Bubble", dark));
-            results.Add(new StyleItem("Bubble", circle));
-            results.Add(new StyleItem("Thin", thin));
-            results.Add(new StyleItem("Scored", score));
-            results.Add(new StyleItem("Script", script));
-            results.Add(new StyleItem("Tiny", super));
-            results.Add(new StyleItem("Small Caps", small));
-            results.Add(new StyleItem("UTF-8", utf));
-            ResultsGrid.ItemsSource = results;
-        }
-
-        private string Convert(string c)
-        {
-            string accentedStr;
-            byte[] tempBytes;
-            tempBytes = System.Text.Encoding.GetEncoding("UTF-8").GetBytes(c);
-            return System.Text.Encoding.ASCII.GetString(tempBytes);
+            BackgroundGridShadow.Receivers.Add(PanelShadowCatcher);
         }
 
         private void BtnCopy_Click(object sender, RoutedEventArgs e)
         {
-            var item = (sender as Button).DataContext as StyleItem;
+            ViewModel.ClickedItem = (sender as Button).DataContext as StyleItem;
 
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(item.TextResult);
-            Debug.WriteLine(item.TextResult);
-
-            Clipboard.SetContent(dataPackage);
+            ViewModel.CopyStyledText();
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        private void BtnCopyHistory_Click(object sender, RoutedEventArgs e)
         {
-#if DEBUG
-            InputBox.Text = "Debugging...";
-#endif
+            ViewModel.ClickedItem = (sender as Button).DataContext as StyleItem;
+
+            ViewModel.CopyHistoryStyledText();
         }
     }
 }

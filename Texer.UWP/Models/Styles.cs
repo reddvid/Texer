@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Texer.UWP.Helpers
+namespace Texer.UWP.Models
 {
     class Styles
     {
