@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="89a67fcb-6f35-421c-9030-35777b054628"
-    Publisher="CN=david"
+    Name="32760RedDavid.Texer"
+    Publisher="CN=3CB88423-4D53-4969-9486-DE9585CE29EF"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="89a67fcb-6f35-421c-9030-35777b054628" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="4c645a7a-f844-42d1-b345-238510d8375e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Texer.UWP</DisplayName>
-    <PublisherDisplayName>david</PublisherDisplayName>
+    <DisplayName>Texer</DisplayName>
+    <PublisherDisplayName>Red David</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -32,12 +32,12 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Texer.UWP.App">
       <uap:VisualElements
-        DisplayName="Texer.UWP"
+        DisplayName="Texer β"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="Texer.UWP"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
